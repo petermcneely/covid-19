@@ -23,14 +23,14 @@ const getJson = json => {
   const nycCovid = json
     .filter(j => j.county === newYorkCity);
 
-  const getDate = date => new Date(
-    new Date(date).getFullYear(),
-    new Date(date).getMonth(),
-    new Date(date).getDate());
+  const getUTCDate = date => new Date(
+    new Date(date).getUTCFullYear(),
+    new Date(date).getUTCMonth(),
+    new Date(date).getUTCDate());
 
-  return nycCovid
+  const payloadForChart = nycCovid
     .map((j, index) => ({
-      date: getDate(j.date),
+      date: getUTCDate(j.date),
       cases: parseInt(j.cases),
       deaths: parseInt(j.deaths),
       added: {
@@ -38,6 +38,7 @@ const getJson = json => {
         deaths: getPercentageIncrease(nycCovid, index, "deaths")
       }
     }));
+  return payloadForChart;
 }
 
 class App extends React.Component {	
