@@ -33,9 +33,13 @@ const getJson = json => {
       date: getUTCDate(j.date),
       cases: parseInt(j.cases),
       deaths: parseInt(j.deaths),
-      added: {
+      percentageIncrease: {
         cases: getPercentageIncrease(nycCovid, index, "cases"),
-        deaths: getPercentageIncrease(nycCovid, index, "deaths")
+        deaths: getPercentageIncrease(nycCovid, index, "deaths"),
+      },
+      added: {
+        cases: getDifference(nycCovid, index, "cases"),
+        deaths: getDifference(nycCovid, index, "deaths")
       }
     }));
   return payloadForChart;
@@ -61,7 +65,7 @@ class App extends React.Component {
     axisY: [
       {
         title: "Cases",
-      },
+      }
     ],
     axisY2: [
       {
@@ -74,15 +78,20 @@ class App extends React.Component {
     },
     data: [
       {
-        type: "column",
-        toolTipContent: "Date {x}: {y} cases",
-        dataPoints: items.map(i => ({x: i.date, y: i.cases})),
+        type: "stackedColumn",
+        toolTipContent: "Date {x}: {y} added cases",
+        dataPoints: items.map(i => ({x: i.date, y: i.added.cases})),
+      },
+      {
+        type: "stackedColumn",
+        toolTipContent: "Date {x}: {z} cases",
+        dataPoints: items.map(i => ({x: i.date, y: i.cases - i.added.cases, z: i.cases})),
       },
       {
         type: "spline",
         toolTipContent: "Date {x}: {y}% case increase",
         axisYType: "secondary",
-        dataPoints: items.map(i => ({x: i.date, y: i.added.cases})),
+        dataPoints: items.map(i => ({x: i.date, y: i.percentageIncrease.cases})),
       },
     ]
   });
@@ -110,15 +119,20 @@ class App extends React.Component {
     },
     data: [
       {
-        type: "column",
-        toolTipContent: "Date {x}: {y} deaths",
-        dataPoints: items.map(i => ({x: i.date, y: i.deaths})),
+        type: "stackedColumn",
+        toolTipContent: "Date {x}: {y} added deaths",
+        dataPoints: items.map(i => ({x: i.date, y: i.added.deaths})),
+      },
+      {
+        type: "stackedColumn",
+        toolTipContent: "Date {x}: {z} deaths",
+        dataPoints: items.map(i => ({x: i.date, y: i.deaths - i.added.deaths, z: i.deaths})),
       },
       {
         type: "spline",
         toolTipContent: "Date {x}: {y}% death increase",
         axisYType: "secondary",
-        dataPoints: items.map(i => ({x: i.date, y: i.added.deaths})),
+        dataPoints: items.map(i => ({x: i.date, y: i.percentageIncrease.deaths})),
       }
     ]
   })
